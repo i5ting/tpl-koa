@@ -1,15 +1,7 @@
 const CURRENT_PATH = '.'
-
 const debug = require('debug')('luojilab')
-
 const renderConf = require(CURRENT_PATH + '/config/renderConfig')
 const glob = require('glob')
-// const express = require('express')
-// const favicon = require('serve-favicon')
-// const cookieParser = require('cookie-parser')
-// const bodyParser = require('body-parser')
-// const compress = require('compression')
-
 const Koa = require('koa')
 const app = new Koa()
 const views = require('koa-views')
@@ -26,8 +18,6 @@ global.log = require('luojilab-log4js').logger
 
 const WEBPACK_HASH_MAP = require(CURRENT_PATH + '/config/webpack-hash-map')
 
-// console.log(WEBPACK_HASH_MAP)
-
 const render = require(CURRENT_PATH + '/server/middleware/render')
 // const app = express()
 const env = process.env.SERVER_CONFIG || 'testing'
@@ -39,11 +29,6 @@ app.use(async function(ctx, next) {
 
   await next()
 })
-
-
-// app.set('views', renderConf.root + '/server/views')
-// app.set('view engine', 'html')
-
 
 const nunjuck = nunjucks.configure(renderConf.root + '/server/views', {
   autoescape: true,
@@ -57,14 +42,6 @@ const nunjuck = nunjucks.configure(renderConf.root + '/server/views', {
 debug(7)
 nunjuck.addGlobal('staticBaseUrl', renderConf.staticBaseUrl)
 logger(app)
-// app.use(favicon(renderConf.root + '/public/favicon.ico'))
-// app.use(bodyParser.json())
-// app.use(bodyParser.urlencoded({extended: true}))
-// app.use(cookieParser())?
-// app.use(compress())?
-// app.use(express.static(renderConf.root + '/public'))
-
-
 
 const favicon = require('koa-favicon');
 
@@ -77,17 +54,14 @@ app.use(bodyparser({
 }))
 app.use(json())
 app.use(logger())
-
-
 app.use(favicon(renderConf.root + '/public/favicon.ico'));
-
 app.use(require('koa-static')(renderConf.root + '/public'))
 
 app.use(views(renderConf.root + '/server/views', {
-  extension: 'html'
+  map: {html: 'nunjucks' }
 }))
 
-// app.use(render)
+app.use(render)
 
 var mount = require('mount-koa-routes');
 mount(app, renderConf.root + '/server/routes');
